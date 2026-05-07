@@ -7,3 +7,8 @@ terraform {
         }
     }
 }
+
+provider "aws" {
+    region = variable.region
+    
+}
