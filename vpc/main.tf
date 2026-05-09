@@ -54,11 +54,17 @@ resource "aws_internet_gateway" "my_igw" {
 
 resource "aws_route_table" "my_rt" {
     vpc_id = aws_vpc.my_server_vpc.id
+    route = {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.my_igw.id
+    }
     tags = {
         Name = "my-route-table"
     }
 }
 
-resource "aws_route_ta" "name" {
+resource "aws_route_table_association" "my_rt_table_association" {
+    for_each = aws_subnet.public_subnet
+    route_table_id = aws_route_table.my_rt.id
   
 }
