@@ -21,3 +21,13 @@ variable "root_volume_type" {
     type   = string
     default = "gp3"
 }
+
+variable "subnet_id" {
+    description = "Subnet ID for the EC2 instance"
+    type    = list(string)
+}
+
+variable "vpc_id" {
+    description = "VPC ID for the EC2 instance"
+    type    = string
+}
