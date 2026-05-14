@@ -13,121 +13,102 @@ provider "aws" {
 
 }
 
-resource "aws_vpc" "my_server_vpc" {
-    cidr_block = "10.0.0.0/16"
+# create a vpc ffor the microservices application
 
+resource aws_vpc "my_vpc" {
+    cidr_block = var.cidr_block
     tags = {
-        Name = "my-server-vpc"
-    }
+        Name = "microservices-vpc"
+        environment = "devlopement"
+          }
 }
 
-resource "aws_subnet" "public_subnet_app" {
+# Create three subnets: one public for the frontend, and two private for the backend and database
+
+resource "aws_subnet" "public_frontend" {
     cidr_block = "10.0.1.0/24"
-    vpc_id = aws_vpc.my_server_vpc.id
     availability_zone = "us-east-1a"
+    vpc_id = aws_vpc.my_vpc.id
     tags = {
-        Name = "my-public-subnet"
-    }
-    map_public_ip_on_launch = true
+        Name = "public-frontend-subnet"
+        environment = "devlopement"
+          }
 }
 
-resource "aws_subnet" "private_subnet_db" {
+resource "aws_subnet" "private_backend" {
     cidr_block = "10.0.2.0/24"
-    vpc_id = aws_vpc.my_server_vpc.id
-    availability_zone = "us-east-1b"
+    availability_zone = "us-east-1a"
+    vpc_id = aws_vpc.my_vpc.id
     tags = {
-        Name = "my-private-subnet-database"
-    }
+        Name = "private-backend-subnet"
+        environment = "devlopement"
+          }
 }
 
-resource "aws_subnet" "private_subnet_app" {
+resource "aws_subnet" "private_database" {
     cidr_block = "10.0.3.0/24"
-    vpc_id = aws_vpc.my_server_vpc.id
-    availability_zone = "us-east-1c"
+    availability_zone = "us-east-1a"
+    vpc_id = aws_vpc.my_vpc.id
     tags = {
-        Name = "my-private-subnet-application"
-    }
+        Name = "private-database-subnet"
+        environment = "devlopement"
+          }
 }
 
-resource "aws_internet_gateway" "my_igw" {
-    vpc_id = aws_vpc.my_server_vpc.id
+# Create an internet gateway and attach it to the VPC
+
+resource "aws_internet_gateway" "microservices_igw" {
+    vpc_id = aws_vpc.my_vpc.id
     tags = {
-        Name = "my-rds-gateway"
-    }
-}
-
-resource "aws_eip" "nat_eip_app" {
-    domain = "vpc"
-    tags = {
-        Name = "my-nat-eip"
-    }
-}
-
-
-resource "aws_nat_gateway" "nat_gateway" {
-    allocation_id = aws_eip.nat_eip.id
-    subnet_id = aws_subnet.public_subnet_app.id
-    tags = {
-        Name = "my-nat-gateway"
-    }
-}
-
-resource "aws_nat_gateway" "nat_gateway_db" {
-    allocation_id = aws_eip.nat_eip.id
-    subnet_id = aws_subnet.private_subnet_app.id
-    tags = {
-        Name = "my-nat-gateway"
-    }
-}
-
-
-resource "aws_route_table" "my_rt" {
-    vpc_id = aws_vpc.my_server_vpc.id
-    route  {
-        cidr_block = "0.0.0.0/0"
-        gateway_id = aws_internet_gateway.my_igw.id
-    }
-    tags = {
-        Name = "my-route-table"
-    }
-}
-
-resource "aws_route_table" "my_private_route_table_db" {
-    vpc_id = aws_vpc.my_server_vpc.id
-    route {
-        cidr_block = "0.0.0.0/0"
-        nat_gateway_id = aws_nat_gateway.nat_gatewa_db.id
-    }
-  tags = {
-    Name = "my-private-route-table_db"
-  }
-}
-
-resource "aws_route_table_association" "my_private_rt_table_association_db" {
-    subnet_id =  aws_subnet.private_subnet_db.id
-    route_table_id = aws_route_table.my_private_route_table_db.id
-}
-
-resource "aws_route_table" "my_private_route_table" {
-    vpc_id = aws_vpc.my_server_vpc.id
-    route {
-        cidr_block = "0.0.0.0/0"
-        nat_gateway_id = aws_nat_gateway.nat_gateway.id
-    }
-  tags = {
-    Name = "my-private-route-table"
-  }
-}
-
-resource "aws_route_table_association" "my_private_rt_table_association" {
-    subnet_id =  aws_subnet.private_subnet_app.id
-    route_table_id = aws_route_table.my_private_route_table.id
+        Name = "microservices-igw"
+        environment = "devlopement"
+          }
   
 }
 
-resource "aws_route_table_association" "my_rt_table_association" {
-    subnet_id = aws_subnet.public_subnet.id
-    route_table_id = aws_route_table.my_rt.id
-  
+# Create route tables for public and private subnets
+
+resource "aws_route_table" "public_route_table" {
+    vpc_id = aws_vpc.my_vpc.id
+    route = {
+        cidr_block = "0.0.0.0/24"
+        gateway_id = aws_internet_gateway.microservices_igw.id
+    }
+    tags = {
+        Name = "public-route-table"
+        environment = "devlopement"
+          }
 }
 
+resource "aws_route_table" "privatebackend_route_table" {
+    vpc_id = aws_vpc.my_vpc.id
+    tags = {
+        Name = "public-route-table"
+        environment = "devlopement"
+          }
+}
+
+resource "aws_route_table" "privatdatabase_route_table" {
+    vpc_id = aws_vpc.my_vpc.id
+    tags = {
+        Name = "public-route-table"
+        environment = "devlopement"
+          }
+}
+
+# Associate the public route table with the public subnet
+
+resource "aws_route_table_association" "public_frontend" {
+    subnet_id = aws_subnet.public_frontend.id
+    route_table_id = aws_route_table.public_route_table.id
+}
+
+resource "aws_route_table_association" "public_frontend" {
+    subnet_id = aws_subnet.private_backend.id
+    route_table_id = aws_route_table.privatbackend_route_table.id
+}
+
+resource "aws_route_table_association" "public_frontend" {
+    subnet_id = aws_subnet.private_database
+    route_table_id = aws_route_table.privatdatabase_route_table.id
+}
