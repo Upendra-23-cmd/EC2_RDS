@@ -12,7 +12,7 @@ variable "instance_type" {
 
 variable "root_volume_size" {
     description = "Size required for the root volume in GB"
-    type = integer
+    type = number 
     default = 8
 } 
 
@@ -25,6 +25,7 @@ variable "root_volume_type" {
 variable "subnet_id" {
     description = "Subnet ID for the EC2 instance"
     type    = list(string)
+    
 }
 
 variable "vpc_id" {
