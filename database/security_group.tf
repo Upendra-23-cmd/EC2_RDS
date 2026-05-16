@@ -1,7 +1,7 @@
 
 
 resource "aws_security_group" "database_security_groups" {
-    name = "microservices-sg"
+    name = "database_microservices-sg"
     description = "Security group for microservices"
     vpc_id = var.vpc_id
 
@@ -10,7 +10,7 @@ resource "aws_security_group" "database_security_groups" {
         from_port = 22
         to_port = 22
         protocol = "tcp"
-        cidr_blocks = "10.0.3.0/24"
+        cidr_blocks = ["10.0.2.0/24"]
     }
 
 

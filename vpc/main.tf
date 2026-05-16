@@ -109,6 +109,6 @@ resource "aws_route_table_association" "backend_private" {
 }
 
 resource "aws_route_table_association" "databse_private" {
-    subnet_id = aws_subnet.private_database
+    subnet_id = aws_subnet.private_database.id
     route_table_id = aws_route_table.privatdatabase_route_table.id
 }

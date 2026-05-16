@@ -24,7 +24,7 @@ variable "root_volume_type" {
 
 variable "subnet_id" {
     description = "Subnet ID for the EC2 instance"
-    type    = list(string)
+    type    = string
     
 }
 
