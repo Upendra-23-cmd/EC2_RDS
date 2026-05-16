@@ -1,6 +1,3 @@
-
-
-
 resource "aws_security_group" "private_security_groups" {
     name = "backend_microservices-sg"
     description = "Security group for microservices"
@@ -19,7 +16,10 @@ resource "aws_security_group" "private_security_groups" {
         from_port = 0
         to_port = 0
         protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
     }
+
+
 
     tags = {
       Name = "private-micro-subnet-sg"

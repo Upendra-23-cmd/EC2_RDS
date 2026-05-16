@@ -6,6 +6,9 @@ crash.log
 terraform.tfvars
 *.tfvars
 .terraform.lock.hcl
+*.pem
 
 # Mac
 .DS_Store
+
+10.0.2.88

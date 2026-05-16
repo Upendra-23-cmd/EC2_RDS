@@ -21,7 +21,7 @@
 # }
 
 
-resource "aws_instance" "database_instance" {
+resource "aws_instance" "backend_instance" {
     ami = "ami-091138d0f0d41ff90"
     instance_type = var.instance_type
     key_name = aws_key_pair.key_pair_backend.key_name
@@ -30,5 +30,5 @@ resource "aws_instance" "database_instance" {
     tags = {
         Name = "backend-instance"
     }
-  
+    
 }
